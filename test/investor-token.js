@@ -1,7 +1,7 @@
 const InvestorToken = artifacts.require("InvestorToken");
 require('chai').use(require('chai-as-promised')).should();
 
-contract('BonumFinancialToken', accounts => {
+contract('InvestorToken', accounts => {
     let instance;
     beforeEach(async () => {
         instance = await InvestorToken.new();

@@ -16,11 +16,12 @@ contract Distributor is Ownable {
         token = InvestorToken(_token);
     }
 
-    function changCoefficient(uint value) onlyOwner {
-        coefficient = value.mul(token.decimals());
+    function changeCoefficient(uint value) external onlyOwner {
+        uint decimal = token.decimals();
+        coefficient = value.mul(10 ** decimal);
     }
 
-    function sendTokens(address investor, uint value) onlyOwner {
+    function sendToInvestor(address investor, uint value) onlyOwner {
         token.sendToInvestor(investor, value);
     }
 
@@ -29,18 +30,23 @@ contract Distributor is Ownable {
             Deposit(msg.sender, msg.value);
     }
 
-    function calculateFunds(){
+    event HolderCount(uint count);
+    event aaa(address a);
+
+    function calculateFunds() external onlyOwner{
         require(this.balance > 0);
+        uint contractBalance = this.balance;
+        HolderCount(token.tokenHoldersCount());
 
         for (uint investorIndex = 0; investorIndex < token.tokenHoldersCount(); investorIndex ++) {
             address investor = token.indexedTokenHolders(investorIndex);
+            aaa(investor);
             uint investorBalance = token.balanceOf(investor);
 
             if (investorBalance >= 10 ** 16 && investor != token.owner()) {
-                uint bonus = uint(investorBalance).mul(this.balance.div(coefficient));
+                uint bonus = (investorBalance.mul(contractBalance)).div(coefficient);
                 investor.transfer(bonus);
             }
         }
-
     }
 }
