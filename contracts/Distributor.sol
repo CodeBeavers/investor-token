@@ -10,7 +10,7 @@ contract Distributor is Ownable {
     uint public coefficient;
     InvestorToken public token;
 
-    event Deposit(address indexed from, uint256 value);
+    event Deposit(address indexed sender, uint value);
 
     function Distributor(address _token){
         token = InvestorToken(_token);
@@ -25,7 +25,8 @@ contract Distributor is Ownable {
     }
 
     function() payable {
-        Deposit(msg.sender, msg.value);
+        if (msg.value > 0)
+            Deposit(msg.sender, msg.value);
     }
 
     function calculateFunds(){
