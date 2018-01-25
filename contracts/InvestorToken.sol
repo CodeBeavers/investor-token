@@ -19,7 +19,7 @@ contract InvestorToken is StandardToken, Ownable {
     }
 
     modifier canTransfer() {
-        require(distributors[msg.sender]);
+        require(distributors[msg.sender] || msg.sender == owner);
         _;
     }
 
@@ -28,7 +28,7 @@ contract InvestorToken is StandardToken, Ownable {
     }
 
     function sendToInvestor(address investor, uint value) canTransfer {
-        require(investor != address(0));
+        require(investor != 0x0);
         require(value <= balances[owner]);
 
         balances[owner] = balances[owner].sub(value);
@@ -55,7 +55,7 @@ contract InvestorToken is StandardToken, Ownable {
     mapping(address => uint) public tokenHolders;
     uint public tokenHoldersCount = 0;
 
-    function addTokenHolder(address investor) private{
+    function addTokenHolder(address investor) private {
         if(investor != owner && indexedTokenHolders[0] != investor && tokenHolders[investor] == 0){
             tokenHolders[investor] = tokenHoldersCount;
             indexedTokenHolders[tokenHoldersCount] = investor;
