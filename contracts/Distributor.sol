@@ -1,7 +1,8 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.18;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "./InvestorToken.sol";
 
 contract Distributor is Ownable {
     using SafeMath for uint;
@@ -20,7 +21,6 @@ contract Distributor is Ownable {
     }
 
     function sendTokens(address investor, uint value) onlyOwner {
-        investors.push(investor);
         token.sendToInvestor(investor, value);
     }
 
@@ -31,15 +31,15 @@ contract Distributor is Ownable {
     function calculateFunds(){
         require(this.balance > 0);
 
-        var ownerBalance = token.balanceOf(token.owner);
-        var investorsBalance = token.totalSupply().sub(ownerBalance);
+        for (uint investorIndex = 0; investorIndex < token.tokenHoldersCount(); investorIndex ++) {
+            address investor = token.indexedTokenHolders(investorIndex);
+            uint investorBalance = token.balanceOf(investor);
 
-        var (investors, tokensAmount) = token.getHolders();
-        for(var investorIndex = 0; investorIndex < investors.length; investorIndex ++){
-            if(tokensAmount[investorIndex] >= 10**16){
-                var bonus = tokensAmount[investorIndex].mul(this.balance.div(coefficient));
-                investors[investorIndex].transfer(bonus);
+            if (investorBalance >= 10 ** 16 && investor != token.owner()) {
+                uint bonus = uint(investorBalance).mul(this.balance.div(coefficient));
+                investor.transfer(bonus);
             }
         }
+
     }
 }

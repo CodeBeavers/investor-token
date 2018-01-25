@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "zeppelin-solidity/contracts/token/StandardToken.sol";
+import "zeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -10,16 +10,16 @@ contract InvestorToken is StandardToken, Ownable {
     string public name = "Investor Token T01";
     string public symbol = "T01";
     uint public decimals = 18;
-    uint public constant INITIAL_SUPPLY = 1000 * decimals;
+    uint public constant INITIAL_SUPPLY = 1000 * 10**18;
     mapping (address => bool) public distributors;
 
     function InvestorToken(){
-        totalSupply = INITIAL_SUPPLY;
+        totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = INITIAL_SUPPLY;
     }
 
-    modifier canTransfer(address sender) {
-        require(distributors[sender]);
+    modifier canTransfer() {
+        require(distributors[msg.sender]);
         _;
     }
 
@@ -32,7 +32,7 @@ contract InvestorToken is StandardToken, Ownable {
         require(value <= balances[owner]);
 
         balances[owner] = balances[owner].sub(value);
-        balances[investor] = balances[investor].add(investor);
+        balances[investor] = balances[investor].add(value);
         addTokenHolder(investor);
         Transfer(owner, investor, value);
     }
@@ -51,30 +51,15 @@ contract InvestorToken is StandardToken, Ownable {
 
     /* Token holders */
 
-    mapping(uint => address) indexedTokenHolders;
-    mapping(address => uint) tokenHolders;
-    uint tokenHoldersCount = 1;
+    mapping(uint => address) public indexedTokenHolders;
+    mapping(address => uint) public tokenHolders;
+    uint public tokenHoldersCount = 0;
 
     function addTokenHolder(address investor) private{
-        if (tokenHolders[investor] > 0)
-            return;
-
-        tokenHolders[investor] = tokenHoldersCount;
-        indexedTokenHolders[tokenHoldersCount] = investor;
-        tokenHoldersCount ++;
-    }
-
-    function getHolders() external constant returns (address[], uint[]){
-        address[] addressResult;
-        address[] balanceResult;
-
-        for (var index = 1; index <= tokenHoldersCount; index++) {
-            if (balances[indexedTokenHolders[index]] > 0) {
-                addressResult.push(indexedTokenHolders[index]);
-                balanceResult.push(balances[indexedTokenHolders[index]]);
-            }
+        if(investor != owner && indexedTokenHolders[0] != investor && tokenHolders[investor] == 0){
+            tokenHolders[investor] = tokenHoldersCount;
+            indexedTokenHolders[tokenHoldersCount] = investor;
+            tokenHoldersCount ++;
         }
-
-        return (addressResult, balanceResult);
     }
 }
