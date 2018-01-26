@@ -26,21 +26,31 @@ contract Distributor is Ownable {
     }
 
     function() payable {
-        if (msg.value > 0)
+        if (msg.value > 0){
             Deposit(msg.sender, msg.value);
+        }
     }
 
-    event HolderCount(uint count);
-    event aaa(address a);
-
-    function calculateFunds() external onlyOwner{
+    function calculateFunds(address[] investors) external onlyOwner{
         require(this.balance > 0);
         uint contractBalance = this.balance;
-        HolderCount(token.tokenHoldersCount());
+
+        for (uint investorIndex = 0; investorIndex < investors.length; investorIndex ++) {
+            address investor = investors[investorIndex];
+            uint investorBalance = token.balanceOf(investor);
+            if (investorBalance >= 10 ** 16 && investor != token.owner()) {
+                uint bonus = (investorBalance.mul(contractBalance)).div(coefficient);
+                investor.transfer(bonus);
+            }
+        }
+    }
+
+    /*function calculateFunds() external onlyOwner{
+        require(this.balance > 0);
+        uint contractBalance = this.balance;
 
         for (uint investorIndex = 0; investorIndex < token.tokenHoldersCount(); investorIndex ++) {
             address investor = token.indexedTokenHolders(investorIndex);
-            aaa(investor);
             uint investorBalance = token.balanceOf(investor);
 
             if (investorBalance >= 10 ** 16 && investor != token.owner()) {
@@ -48,5 +58,5 @@ contract Distributor is Ownable {
                 investor.transfer(bonus);
             }
         }
-    }
+    }*/
 }

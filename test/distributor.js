@@ -31,12 +31,12 @@ contract('Distributor', accounts => {
             instance.changeCoefficient(234, {from : accounts[9]}).should.be.rejectedWith('revert');
         });
 
-        it("contract can store money", async () => {
+        it("contract can store money and send them to owner", async () => {
             await instance.sendTransaction({value: 398 * (10 ** 11), from: accounts[8]});
             await instance.sendTransaction({value: 200 * (10 ** 11), from: accounts[7]});
-
             let balance = await web3.eth.getBalance(instance.address);
-            assert.equal(balance.valueOf(), 598 * 10 ** 11, "Balance must be 598 * 10 ** 11");
+
+            assert.equal(598 * 10 ** 11, balance.valueOf(), "Balance must be 598 * 10 ** 11");
         });
     });
 
@@ -107,7 +107,7 @@ contract('Distributor', accounts => {
             await instance.sendToInvestor(accounts[9], 200 * 10 ** 18);
             await instance.sendToInvestor(accounts[8], 300 * 10 ** 18);
 
-            await instance.calculateFunds();
+            await instance.calculateFunds([accounts[9], accounts[8]]);
 
             let balance9After = await web3.eth.getBalance(accounts[9]);
             let balance8After = await web3.eth.getBalance(accounts[8]);
@@ -122,7 +122,7 @@ contract('Distributor', accounts => {
             let balance9 = await web3.eth.getBalance(accounts[9]);
             await instance.sendToInvestor(accounts[9], 9 ** 16);
 
-            await instance.calculateFunds();
+            await instance.calculateFunds([accounts[9]]);
 
             let balance9After = await web3.eth.getBalance(accounts[9]);
 
@@ -130,7 +130,7 @@ contract('Distributor', accounts => {
         });
 
         it("only owner can call", async function () {
-            instance.calculateFunds({from: accounts[2]}).should.be.rejectedWith('revert');
+            instance.calculateFunds([], {from: accounts[2]}).should.be.rejectedWith('revert');
         });
     });
 });
