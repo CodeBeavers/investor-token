@@ -13,13 +13,17 @@ contract InvestorToken is StandardToken, Ownable {
     uint public constant INITIAL_SUPPLY = 1000 * 10**2;
     mapping (address => bool) public distributors;
 
-    boolean public byuoutActive;
+    bool public byuoutActive;
     uint public byuoutCount;
     uint public priceForBasePart;
 
     function InvestorToken(){
         totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = INITIAL_SUPPLY;
+    }
+
+    function() payable{
+
     }
 
     modifier canTransfer() {
@@ -31,7 +35,7 @@ contract InvestorToken is StandardToken, Ownable {
         distributors[distributor] = state;
     }
 
-    function setByuoutActive(boolean status) onlyOwner {
+    function setByuoutActive(bool status) onlyOwner {
         byuoutActive = status;
     }
 

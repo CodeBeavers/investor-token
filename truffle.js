@@ -8,9 +8,8 @@ module.exports = {
         rinkeby: {
             host: "localhost", // Connect to geth on the specified
             port: 8545,
-            from: "0xC5ce18fF493F119cFd5fBDd8506Cf779d74678A2", // default address to use for any transaction Truffle makes during migrations
-            network_id: 4,
-            gas: 4612388 // Gas limit used for deploys
+            from: "0x9F204bc2561336d3d6A63b76788EE729d4a42daC", // default address to use for any transaction Truffle makes during migrations
+            network_id: 4
         }
     }
 };
