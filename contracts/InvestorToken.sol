@@ -9,8 +9,8 @@ contract InvestorToken is StandardToken, Ownable {
 
     string public name = "Investor Token T01";
     string public symbol = "T01";
-    uint public decimals = 18;
-    uint public constant INITIAL_SUPPLY = 1000 * 10**18;
+    uint public decimals = 2;
+    uint public constant INITIAL_SUPPLY = 1000 * 10**2;
     mapping (address => bool) public distributors;
 
     function InvestorToken(){
