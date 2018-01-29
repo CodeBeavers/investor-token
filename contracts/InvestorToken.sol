@@ -13,6 +13,10 @@ contract InvestorToken is StandardToken, Ownable {
     uint public constant INITIAL_SUPPLY = 1000 * 10**2;
     mapping (address => bool) public distributors;
 
+    boolean public byuoutActive;
+    uint public byuoutCount;
+    uint public priceForBasePart;
+
     function InvestorToken(){
         totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = INITIAL_SUPPLY;
@@ -27,6 +31,18 @@ contract InvestorToken is StandardToken, Ownable {
         distributors[distributor] = state;
     }
 
+    function setByuoutActive(boolean status) onlyOwner {
+        byuoutActive = status;
+    }
+
+    function setByuoutCount(uint count) onlyOwner {
+        byuoutCount = count;
+    }
+
+    function setPriceForBasePart(uint newPriceForBasePart) onlyOwner {
+        priceForBasePart = newPriceForBasePart;
+    }
+
     function sendToInvestor(address investor, uint value) canTransfer {
         require(investor != 0x0);
         require(value <= balances[owner]);
@@ -39,6 +55,18 @@ contract InvestorToken is StandardToken, Ownable {
 
     function transfer(address to, uint value) returns (bool success) {
         require(to != 0x0);
+
+        if(to == owner && byuoutActive && byuoutCount > 0){
+            uint bonus = 0 ;
+            if(value > byuoutCount){
+                bonus = byuoutCount.mul(priceForBasePart);
+            }else{
+                bonus = value.mul(priceForBasePart);
+                byuoutCount = byuoutCount.sub(value);
+            }
+            msg.sender.transfer(bonus);
+        }
+
         addTokenHolder(to);
         return super.transfer(to, value);
     }
